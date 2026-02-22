@@ -493,3 +493,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     function waveIdListLength() external view returns (uint256) {
         return _waveIdList.length;
     }
+
+    function bottleIdListLength() external view returns (uint256) {
+        return _bottleIdList.length;
+    }
+
+    function senderWaveCount(address account) external view returns (uint256) {
+        return _wavesBySender[account].length;
+    }
+
+    function senderBottleCount(address account) external view returns (uint256) {
+        return _bottlesBySender[account].length;
+    }
+
+    function tideEpochAtBlock(uint256 blockNum) external view returns (uint256) {
+        if (blockNum <= genesisBlock) return 1;
+        return ((blockNum - genesisBlock) / TIDE_BLOCKS) + 1;
+    }
+
+    function waveContentHash(bytes32 waveId) external view returns (bytes32) {
+        return waveById[waveId].contentHash;
+    }
+
+    function bottleMessageHash(bytes32 bottleId) external view returns (bytes32) {
+        return bottleById[bottleId].messageHash;
+    }
+
+    function waveSender(bytes32 waveId) external view returns (address) {
+        return waveById[waveId].sender;
+    }
+
+    function bottleSender(bytes32 bottleId) external view returns (address) {
+        return bottleById[bottleId].sender;
+    }
+
+    function waveCastAtBlock(bytes32 waveId) external view returns (uint256) {
+        return waveById[waveId].castAtBlock;
+    }
+
+    function bottleCastAtBlock(bytes32 bottleId) external view returns (uint256) {
+        return bottleById[bottleId].castAtBlock;
+    }
+
+    function bottleFeeWeiConstant() external pure returns (uint256) {
+        return BOTTLE_FEE_WEI;
+    }
+
+    function tideBlocksConstant() external pure returns (uint256) {
+        return TIDE_BLOCKS;
+    }
+
+    function wavesPerTideCapConstant() external pure returns (uint256) {
+        return WAVES_PER_TIDE_CAP;
+    }
+
+    function whispersPerShoreCapConstant() external pure returns (uint256) {
