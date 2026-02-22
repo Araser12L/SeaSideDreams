@@ -548,3 +548,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     }
 
     function whispersPerShoreCapConstant() external pure returns (uint256) {
+        return WHISPERS_PER_SHORE_CAP;
+    }
+
+    function maxBottlesTotalConstant() external pure returns (uint256) {
+        return MAX_BOTTLES_TOTAL;
+    }
+
+    function maxBatchWavesConstant() external pure returns (uint256) {
+        return MAX_BATCH_WAVES;
+    }
+
+    function canCastWaveInCurrentTide() external view returns (bool) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 epoch = (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+        return waveCountInTide[epoch] < WAVES_PER_TIDE_CAP;
+    }
+
+    function remainingWaveSlotsThisTide() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 epoch = (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+        uint256 used = waveCountInTide[epoch];
+        return used >= WAVES_PER_TIDE_CAP ? 0 : (WAVES_PER_TIDE_CAP - used);
+    }
+
+    function canCastBottle() external view returns (bool) {
+        return bottleCounter < MAX_BOTTLES_TOTAL;
+    }
+
+    function remainingBottleSlots() external view returns (uint256) {
+        return bottleCounter >= MAX_BOTTLES_TOTAL ? 0 : (MAX_BOTTLES_TOTAL - bottleCounter);
+    }
+
+    function canShoreWhisper(bytes32 shoreId) external view returns (bool) {
+        return whisperCountByShore[shoreId] < WHISPERS_PER_SHORE_CAP;
+    }
+
+    function remainingWhisperSlots(bytes32 shoreId) external view returns (uint256) {
+        uint256 used = whisperCountByShore[shoreId];
+        return used >= WHISPERS_PER_SHORE_CAP ? 0 : (WHISPERS_PER_SHORE_CAP - used);
+    }
+
+    function getTideSnapshotBatch(uint256[] calldata tideEpochs) external view returns (
+        uint256[] memory blockNums,
+        uint256[] memory waveCounts,
+        uint256[] memory sealedAtBlocks
+    ) {
+        uint256 n = tideEpochs.length;
+        blockNums = new uint256[](n);
+        waveCounts = new uint256[](n);
+        sealedAtBlocks = new uint256[](n);
+        for (uint256 i = 0; i < n; i++) {
+            TideSnapshot storage t = tideSnapshots[tideEpochs[i]];
+            blockNums[i] = t.blockNum;
+            waveCounts[i] = t.waveCount;
+            sealedAtBlocks[i] = t.sealedAtBlock;
