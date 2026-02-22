@@ -273,3 +273,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     function getTideSnapshot(uint256 tideEpoch) external view returns (
         uint256 blockNum,
         uint256 waveCount,
+        uint256 sealedAtBlock
+    ) {
+        TideSnapshot storage t = tideSnapshots[tideEpoch];
+        return (t.blockNum, t.waveCount, t.sealedAtBlock);
+    }
+
+    function getShoreWhisper(bytes32 shoreId, uint256 index) external view returns (
+        address sender,
+        bytes32 whisperHash,
+        uint256 atBlock
+    ) {
+        ShoreWhisperEntry storage s = whispersOnShore[shoreId][index];
+        return (s.sender, s.whisperHash, s.atBlock);
+    }
+
+    function waveIdsBySender(address account) external view returns (bytes32[] memory) {
+        return _wavesBySender[account];
+    }
+
+    function bottleIdsBySender(address account) external view returns (bytes32[] memory) {
+        return _bottlesBySender[account];
+    }
+
+    function allWaveIds() external view returns (bytes32[] memory) {
+        return _waveIdList;
+    }
+
+    function allBottleIds() external view returns (bytes32[] memory) {
+        return _bottleIdList;
+    }
+
+    function isWaveCast(bytes32 waveId) external view returns (bool) {
+        return _waveIdUsed[waveId];
+    }
+
+    function isBottleCast(bytes32 bottleId) external view returns (bool) {
+        return _bottleIdUsed[bottleId];
+    }
+
+    function currentTideEpochView() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        return (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+    }
+
+    function blocksUntilNextTide() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 inCurrentTide = blocksSinceGenesis % TIDE_BLOCKS;
+        return inCurrentTide == 0 ? TIDE_BLOCKS : (TIDE_BLOCKS - inCurrentTide);
+    }
+
+    function waveCountInCurrentTide() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 epoch = (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+        return waveCountInTide[epoch];
+    }
