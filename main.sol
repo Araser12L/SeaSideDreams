@@ -218,3 +218,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
 
         whisperCountByShore[shoreId]++;
         uint256 idx = count;
+        whispersOnShore[shoreId][idx] = ShoreWhisperEntry({
+            shoreId: shoreId,
+            sender: msg.sender,
+            whisperHash: whisperHash,
+            indexOnShore: idx,
+            atBlock: block.number
+        });
+        emit ShoreWhisper(shoreId, msg.sender, whisperHash, idx, block.number);
+    }
+
+    function lighthouseSignal(bytes32 signalId, uint8 signalType) external {
+        if (msg.sender != lighthouseKeeper && msg.sender != owner()) revert SSD_NotLighthouseKeeper();
+        emit LighthousePulse(signalId, msg.sender, signalType, block.number);
+    }
+
+    function topTreasury() external payable {
+        if (msg.value > 0) {
+            treasuryBalance += msg.value;
+            emit OceanTreasuryTopped(msg.value, msg.sender, treasuryBalance);
+        }
+    }
+
+    function withdrawTreasury(address to, uint256 amountWei) external onlyOwner nonReentrant {
+        if (to == address(0)) revert SSD_ZeroAddress();
+        if (amountWei == 0) revert SSD_WithdrawZero();
+        if (amountWei > treasuryBalance) revert SSD_TransferFailed();
+        treasuryBalance -= amountWei;
+        (bool sent,) = to.call{value: amountWei}("");
+        if (!sent) revert SSD_TransferFailed();
+        emit OceanTreasuryWithdrawn(to, amountWei, block.number);
+    }
+
+    function getWave(bytes32 waveId) external view returns (
+        address sender,
+        bytes32 contentHash,
+        uint256 tideEpoch,
+        uint256 castAtBlock
+    ) {
+        WaveEntry storage w = waveById[waveId];
+        return (w.sender, w.contentHash, w.tideEpoch, w.castAtBlock);
+    }
+
+    function getBottle(bytes32 bottleId) external view returns (
+        address sender,
+        bytes32 messageHash,
+        uint256 feeWei,
+        uint256 castAtBlock
+    ) {
+        BottleEntry storage b = bottleById[bottleId];
+        return (b.sender, b.messageHash, b.feeWei, b.castAtBlock);
+    }
+
+    function getTideSnapshot(uint256 tideEpoch) external view returns (
+        uint256 blockNum,
+        uint256 waveCount,
