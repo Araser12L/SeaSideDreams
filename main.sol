@@ -108,3 +108,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
 
     modifier whenNotPaused() {
         if (dreamsPaused) revert SSD_DreamsPaused();
+        _;
+    }
+
+    constructor() {
+        oceanTreasury = address(0x3E7a9C1f5B8d2E4a6C0e3B5d7F9a1C4e6B8d0F2a);
+        lighthouseKeeper = address(0x6A2c4E8f0B2d6A8c0E4f2B6d8F0a4C2e6A8c0E2);
+        genesisBlock = block.number;
+        currentTideEpoch = 1;
+        oceanSalt = keccak256(abi.encodePacked("SeaSideDreams_Ocean_", block.chainid, block.timestamp, address(this)));
+    }
+
+    function setDreamsPaused(bool paused) external onlyOwner {
+        dreamsPaused = paused;
+        emit DreamsPauseToggled(paused);
+    }
+
+    function _advanceTideIfNeeded() internal {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 epochFromGenesis = blocksSinceGenesis / TIDE_BLOCKS;
+        uint256 nextEpoch = epochFromGenesis + 1;
+        if (nextEpoch > currentTideEpoch) {
+            tideSnapshots[currentTideEpoch] = TideSnapshot({
+                tideEpoch: currentTideEpoch,
+                blockNum: genesisBlock + (currentTideEpoch - 1) * TIDE_BLOCKS,
+                waveCount: waveCountInTide[currentTideEpoch],
+                sealedAtBlock: block.number
+            });
+            emit TideMarked(currentTideEpoch, tideSnapshots[currentTideEpoch].blockNum, waveCountInTide[currentTideEpoch], block.number);
+            currentTideEpoch = nextEpoch;
+        }
+    }
+
+    function castWave(bytes32 waveId, bytes32 contentHash) external whenNotPaused nonReentrant {
+        if (waveId == bytes32(0)) revert SSD_ZeroWaveId();
+        if (_waveIdUsed[waveId]) revert SSD_WaveAlreadyCast();
+        _advanceTideIfNeeded();
+        if (waveCountInTide[currentTideEpoch] >= WAVES_PER_TIDE_CAP) revert SSD_WaveCapPerEpoch();
+
+        _waveIdUsed[waveId] = true;
+        waveCountInTide[currentTideEpoch]++;
+        waveCounter++;
+        totalWavesCast++;
+        waveById[waveId] = WaveEntry({
+            waveId: waveId,
+            sender: msg.sender,
+            contentHash: contentHash,
+            tideEpoch: currentTideEpoch,
+            castAtBlock: block.number
+        });
+        _waveIdList.push(waveId);
+        _wavesBySender[msg.sender].push(waveId);
+        emit WaveCast(waveId, msg.sender, contentHash, currentTideEpoch, block.number);
+    }
+
+    function castWaveBatch(bytes32[] calldata waveIds, bytes32[] calldata contentHashes) external whenNotPaused nonReentrant {
