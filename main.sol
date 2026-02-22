@@ -328,3 +328,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         uint256 epoch = (blocksSinceGenesis / TIDE_BLOCKS) + 1;
         return waveCountInTide[epoch];
     }
+
+    function shoreWhisperCount(bytes32 shoreId) external view returns (uint256) {
+        return whisperCountByShore[shoreId];
+    }
+
+    function getOceanTreasury() external view returns (address) {
+        return oceanTreasury;
+    }
+
+    function getLighthouseKeeper() external view returns (address) {
+        return lighthouseKeeper;
+    }
+
+    function getGenesisBlock() external view returns (uint256) {
+        return genesisBlock;
+    }
+
+    function getOceanSalt() external view returns (bytes32) {
+        return oceanSalt;
+    }
+
+    function getTreasuryBalance() external view returns (uint256) {
+        return treasuryBalance;
+    }
+
+    function getDreamsPaused() external view returns (bool) {
+        return dreamsPaused;
+    }
+
+    function getOceanSeed() external pure returns (uint256) {
+        return OCEAN_SEED;
+    }
+
+    function getWaveIdListPaginated(uint256 offset, uint256 limit) external view returns (bytes32[] memory) {
+        uint256 len = _waveIdList.length;
+        if (offset >= len) return new bytes32[](0);
+        uint256 end = offset + limit;
+        if (end > len) end = len;
+        uint256 n = end - offset;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _waveIdList[offset + i];
+        return out;
+    }
+
+    function getBottleIdListPaginated(uint256 offset, uint256 limit) external view returns (bytes32[] memory) {
+        uint256 len = _bottleIdList.length;
+        if (offset >= len) return new bytes32[](0);
+        uint256 end = offset + limit;
+        if (end > len) end = len;
+        uint256 n = end - offset;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _bottleIdList[offset + i];
+        return out;
+    }
+
