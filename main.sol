@@ -163,3 +163,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     }
 
     function castWaveBatch(bytes32[] calldata waveIds, bytes32[] calldata contentHashes) external whenNotPaused nonReentrant {
+        if (waveIds.length != contentHashes.length) revert SSD_ArrayLengthMismatch();
+        if (waveIds.length > MAX_BATCH_WAVES) revert SSD_BatchTooLarge();
+        _advanceTideIfNeeded();
+        if (waveCountInTide[currentTideEpoch] + waveIds.length > WAVES_PER_TIDE_CAP) revert SSD_WaveCapPerEpoch();
+
+        for (uint256 i = 0; i < waveIds.length; i++) {
+            bytes32 wid = waveIds[i];
+            if (wid == bytes32(0) || _waveIdUsed[wid]) continue;
+            _waveIdUsed[wid] = true;
+            waveCountInTide[currentTideEpoch]++;
+            waveCounter++;
+            totalWavesCast++;
+            waveById[wid] = WaveEntry({
+                waveId: wid,
+                sender: msg.sender,
+                contentHash: contentHashes[i],
+                tideEpoch: currentTideEpoch,
+                castAtBlock: block.number
+            });
+            _waveIdList.push(wid);
+            _wavesBySender[msg.sender].push(wid);
+            emit WaveCast(wid, msg.sender, contentHashes[i], currentTideEpoch, block.number);
+        }
+        emit WaveBatchCast(waveIds, msg.sender, currentTideEpoch, block.number);
+    }
+
+    function castBottle(bytes32 bottleId, bytes32 messageHash) external payable whenNotPaused nonReentrant {
+        if (bottleId == bytes32(0)) revert SSD_ZeroBottleId();
+        if (_bottleIdUsed[bottleId]) revert SSD_BottleAlreadyCast();
+        if (msg.value < BOTTLE_FEE_WEI) revert SSD_InsufficientBottleFee();
+        if (bottleCounter >= MAX_BOTTLES_TOTAL) revert SSD_BottleCap();
+
+        _bottleIdUsed[bottleId] = true;
+        bottleCounter++;
+        totalBottlesCast++;
+        treasuryBalance += msg.value;
+        bottleById[bottleId] = BottleEntry({
+            bottleId: bottleId,
+            sender: msg.sender,
+            messageHash: messageHash,
+            feeWei: msg.value,
+            castAtBlock: block.number
+        });
+        _bottleIdList.push(bottleId);
+        _bottlesBySender[msg.sender].push(bottleId);
+        emit BottleCast(bottleId, msg.sender, messageHash, msg.value, block.number);
+    }
+
+    function shoreWhisper(bytes32 shoreId, bytes32 whisperHash) external whenNotPaused nonReentrant {
+        if (shoreId == bytes32(0)) revert SSD_ZeroShoreId();
+        uint256 count = whisperCountByShore[shoreId];
+        if (count >= WHISPERS_PER_SHORE_CAP) revert SSD_ShoreWhisperCap();
+
+        whisperCountByShore[shoreId]++;
+        uint256 idx = count;
