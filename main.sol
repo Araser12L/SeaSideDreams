@@ -53,3 +53,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     uint256 public immutable genesisBlock;
     bytes32 public immutable oceanSalt;
 
+    uint256 public waveCounter;
+    uint256 public bottleCounter;
+    uint256 public currentTideEpoch;
+    uint256 public totalWavesCast;
+    uint256 public totalBottlesCast;
+    uint256 public treasuryBalance;
+    bool public dreamsPaused;
+
+    struct WaveEntry {
+        bytes32 waveId;
+        address sender;
+        bytes32 contentHash;
+        uint256 tideEpoch;
+        uint256 castAtBlock;
+    }
+
+    struct BottleEntry {
+        bytes32 bottleId;
+        address sender;
+        bytes32 messageHash;
+        uint256 feeWei;
+        uint256 castAtBlock;
+    }
+
+    struct ShoreWhisperEntry {
+        bytes32 shoreId;
+        address sender;
+        bytes32 whisperHash;
+        uint256 indexOnShore;
+        uint256 atBlock;
+    }
+
+    struct TideSnapshot {
+        uint256 tideEpoch;
+        uint256 blockNum;
+        uint256 waveCount;
+        uint256 sealedAtBlock;
+    }
+
+    mapping(bytes32 => WaveEntry) public waveById;
+    mapping(bytes32 => BottleEntry) public bottleById;
+    mapping(uint256 => TideSnapshot) public tideSnapshots;
+    mapping(uint256 => uint256) public waveCountInTide;
+    mapping(bytes32 => uint256) public whisperCountByShore;
+    mapping(bytes32 => mapping(uint256 => ShoreWhisperEntry)) public whispersOnShore;
+
+    mapping(bytes32 => bool) private _waveIdUsed;
+    mapping(bytes32 => bool) private _bottleIdUsed;
+    bytes32[] private _waveIdList;
+    bytes32[] private _bottleIdList;
+    mapping(address => bytes32[]) private _wavesBySender;
+    mapping(address => bytes32[]) private _bottlesBySender;
+
+    modifier whenNotPaused() {
+        if (dreamsPaused) revert SSD_DreamsPaused();
