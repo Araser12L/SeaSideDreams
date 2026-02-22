@@ -383,3 +383,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         return out;
     }
 
+    function getWaveEntriesBatch(bytes32[] calldata waveIds) external view returns (
+        address[] memory senders,
+        bytes32[] memory contentHashes,
+        uint256[] memory tideEpochs,
+        uint256[] memory castAtBlocks
+    ) {
+        uint256 n = waveIds.length;
+        senders = new address[](n);
+        contentHashes = new bytes32[](n);
+        tideEpochs = new uint256[](n);
+        castAtBlocks = new uint256[](n);
+        for (uint256 i = 0; i < n; i++) {
+            WaveEntry storage w = waveById[waveIds[i]];
+            senders[i] = w.sender;
+            contentHashes[i] = w.contentHash;
+            tideEpochs[i] = w.tideEpoch;
+            castAtBlocks[i] = w.castAtBlock;
+        }
+        return (senders, contentHashes, tideEpochs, castAtBlocks);
+    }
+
+    function getBottleEntriesBatch(bytes32[] calldata bottleIds) external view returns (
+        address[] memory senders,
+        bytes32[] memory messageHashes,
+        uint256[] memory feesWei,
+        uint256[] memory castAtBlocks
+    ) {
+        uint256 n = bottleIds.length;
+        senders = new address[](n);
+        messageHashes = new bytes32[](n);
+        feesWei = new uint256[](n);
+        castAtBlocks = new uint256[](n);
+        for (uint256 i = 0; i < n; i++) {
+            BottleEntry storage b = bottleById[bottleIds[i]];
+            senders[i] = b.sender;
+            messageHashes[i] = b.messageHash;
+            feesWei[i] = b.feeWei;
+            castAtBlocks[i] = b.castAtBlock;
+        }
+        return (senders, messageHashes, feesWei, castAtBlocks);
+    }
+
+    function getShoreWhispersBatch(bytes32 shoreId, uint256 offset, uint256 limit) external view returns (
+        address[] memory senders,
+        bytes32[] memory whisperHashes,
+        uint256[] memory atBlocks
+    ) {
+        uint256 total = whisperCountByShore[shoreId];
+        if (offset >= total) {
+            return (new address[](0), new bytes32[](0), new uint256[](0));
+        }
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+        uint256 n = end - offset;
+        senders = new address[](n);
