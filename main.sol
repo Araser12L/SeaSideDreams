@@ -438,3 +438,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         if (end > total) end = total;
         uint256 n = end - offset;
         senders = new address[](n);
+        whisperHashes = new bytes32[](n);
+        atBlocks = new uint256[](n);
+        for (uint256 i = 0; i < n; i++) {
+            ShoreWhisperEntry storage s = whispersOnShore[shoreId][offset + i];
+            senders[i] = s.sender;
+            whisperHashes[i] = s.whisperHash;
+            atBlocks[i] = s.atBlock;
+        }
+        return (senders, whisperHashes, atBlocks);
+    }
+
+    function getConfigSnapshot() external view returns (
+        address oceanTreasury_,
+        address lighthouseKeeper_,
+        uint256 genesisBlock_,
+        uint256 currentTideEpoch_,
+        uint256 waveCounter_,
+        uint256 bottleCounter_,
+        uint256 treasuryBalance_,
+        bool dreamsPaused_
+    ) {
+        return (
+            oceanTreasury,
+            lighthouseKeeper,
+            genesisBlock,
+            currentTideEpoch,
+            waveCounter,
+            bottleCounter,
+            treasuryBalance,
+            dreamsPaused
+        );
+    }
+
+    function getConstantsSnapshot() external pure returns (
+        uint256 tideBlocks,
+        uint256 wavesPerTideCap,
+        uint256 whispersPerShoreCap,
+        uint256 bottleFeeWei,
+        uint256 maxBottlesTotal,
+        uint256 maxBatchWaves
+    ) {
+        return (TIDE_BLOCKS, WAVES_PER_TIDE_CAP, WHISPERS_PER_SHORE_CAP, BOTTLE_FEE_WEI, MAX_BOTTLES_TOTAL, MAX_BATCH_WAVES);
+    }
+
+    function totalWavesCastView() external view returns (uint256) {
+        return totalWavesCast;
+    }
+
+    function totalBottlesCastView() external view returns (uint256) {
+        return totalBottlesCast;
+    }
+
+    function waveIdListLength() external view returns (uint256) {
+        return _waveIdList.length;
+    }
