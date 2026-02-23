@@ -713,3 +713,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         bytes32 contentHashVal,
         uint256 tideEpochVal,
         uint256 castBlock
+    ) {
+        WaveEntry storage w = waveById[waveId];
+        return (w.waveId, w.sender, w.contentHash, w.tideEpoch, w.castAtBlock);
+    }
+
+    function getBottleEntryFull(bytes32 bottleId) external view returns (
+        bytes32 id,
+        address senderAddr,
+        bytes32 messageHashVal,
+        uint256 feeWeiVal,
+        uint256 castBlock
+    ) {
+        BottleEntry storage b = bottleById[bottleId];
+        return (b.bottleId, b.sender, b.messageHash, b.feeWei, b.castAtBlock);
+    }
+
+    function getShoreWhisperFull(bytes32 shoreId, uint256 index) external view returns (
+        bytes32 shoreIdVal,
+        address senderAddr,
+        bytes32 whisperHashVal,
+        uint256 indexOnShoreVal,
+        uint256 atBlockVal
+    ) {
+        ShoreWhisperEntry storage s = whispersOnShore[shoreId][index];
+        return (s.shoreId, s.sender, s.whisperHash, s.indexOnShore, s.atBlock);
+    }
+
+    function wavesInTideEpoch(uint256 tideEpoch) external view returns (uint256) {
+        return waveCountInTide[tideEpoch];
+    }
+
+    function shoreWhispersTotal(bytes32 shoreId) external view returns (uint256) {
+        return whisperCountByShore[shoreId];
+    }
+
+    function hasWave(bytes32 waveId) external view returns (bool) {
+        return _waveIdUsed[waveId];
+    }
+
+    function hasBottle(bytes32 bottleId) external view returns (bool) {
+        return _bottleIdUsed[bottleId];
+    }
+
+    function minBottleFee() external pure returns (uint256) {
+        return BOTTLE_FEE_WEI;
+    }
+
+    function tideIntervalBlocks() external pure returns (uint256) {
+        return TIDE_BLOCKS;
+    }
+
+    function maxWavesPerTide() external pure returns (uint256) {
+        return WAVES_PER_TIDE_CAP;
+    }
+
