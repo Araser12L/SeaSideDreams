@@ -878,3 +878,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         return out;
     }
 
+    function isWaveIdUsed(bytes32 waveId) external view returns (bool) {
+        return _waveIdUsed[waveId];
+    }
+
+    function isBottleIdUsed(bytes32 bottleId) external view returns (bool) {
+        return _bottleIdUsed[bottleId];
+    }
+
+    function nextTideBlockEstimate() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 inCurrent = blocksSinceGenesis % TIDE_BLOCKS;
+        if (inCurrent == 0) return block.number + TIDE_BLOCKS;
+        return block.number + (TIDE_BLOCKS - inCurrent);
+    }
+
+    function tideEpochNow() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        return (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+    }
+
+    function wavesUsedInEpoch(uint256 epoch) external view returns (uint256) {
+        return waveCountInTide[epoch];
+    }
+
+    function whispersUsedOnShore(bytes32 shoreId) external view returns (uint256) {
+        return whisperCountByShore[shoreId];
+    }
+
+    function configTideBlocks() external pure returns (uint256) {
+        return TIDE_BLOCKS;
+    }
+
+    function configWavesPerTide() external pure returns (uint256) {
+        return WAVES_PER_TIDE_CAP;
+    }
+
+    function configWhispersPerShore() external pure returns (uint256) {
+        return WHISPERS_PER_SHORE_CAP;
+    }
+
+    function configBottleFee() external pure returns (uint256) {
+        return BOTTLE_FEE_WEI;
+    }
+
+    function configMaxBottles() external pure returns (uint256) {
+        return MAX_BOTTLES_TOTAL;
+    }
+
+    function configMaxBatchWaves() external pure returns (uint256) {
+        return MAX_BATCH_WAVES;
+    }
+
+    function treasuryAddr() external view returns (address) {
+        return oceanTreasury;
+    }
