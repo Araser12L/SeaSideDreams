@@ -1043,3 +1043,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     }
 
     function currentEpoch() external view returns (uint256) {
+        return currentTideEpoch;
+    }
+
+    function totalWaves() external view returns (uint256) {
+        return totalWavesCast;
+    }
+
+    function totalBottles() external view returns (uint256) {
+        return totalBottlesCast;
+    }
+
+    function waveListLength() external view returns (uint256) {
+        return _waveIdList.length;
+    }
+
+    function bottleListLength() external view returns (uint256) {
+        return _bottleIdList.length;
+    }
+
+    function senderWaves(address account) external view returns (bytes32[] memory) {
+        return _wavesBySender[account];
+    }
+
+    function senderBottles(address account) external view returns (bytes32[] memory) {
+        return _bottlesBySender[account];
+    }
+
+    function waveByIndex(uint256 index) external view returns (bytes32) {
+        if (index >= _waveIdList.length) return bytes32(0);
+        return _waveIdList[index];
+    }
+
+    function bottleByIndex(uint256 index) external view returns (bytes32) {
+        if (index >= _bottleIdList.length) return bytes32(0);
+        return _bottleIdList[index];
+    }
+
+    function tideWaveCount(uint256 epoch) external view returns (uint256) {
+        return waveCountInTide[epoch];
+    }
+
+    function shoreCount(bytes32 shoreId) external view returns (uint256) {
+        return whisperCountByShore[shoreId];
+    }
+
+    function checkWaveIdAvailable(bytes32 waveId) external view returns (bool) {
+        return waveId != bytes32(0) && !_waveIdUsed[waveId];
+    }
+
+    function checkBottleIdAvailable(bytes32 bottleId) external view returns (bool) {
+        return bottleId != bytes32(0) && !_bottleIdUsed[bottleId];
+    }
+
+    function blocksToNextTide() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
