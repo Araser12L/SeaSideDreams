@@ -658,3 +658,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     }
 
     function genesisBlockNumber() external view returns (uint256) {
+        return genesisBlock;
+    }
+
+    function oceanSaltBytes() external view returns (bytes32) {
+        return oceanSalt;
+    }
+
+    function isLighthouseKeeper(address account) external view returns (bool) {
+        return account == lighthouseKeeper || account == owner();
+    }
+
+    function validateWaveId(bytes32 waveId) external view returns (bool) {
+        return waveId != bytes32(0) && !_waveIdUsed[waveId];
+    }
+
+    function validateBottleId(bytes32 bottleId) external view returns (bool) {
+        return bottleId != bytes32(0) && !_bottleIdUsed[bottleId] && bottleCounter < MAX_BOTTLES_TOTAL;
+    }
+
+    function estimateTideEpochAtBlock(uint256 blockNum) external view returns (uint256) {
+        if (blockNum <= genesisBlock) return 1;
+        return ((blockNum - genesisBlock) / TIDE_BLOCKS) + 1;
+    }
+
+    function getOceanSeedHex() external pure returns (uint256) {
+        return OCEAN_SEED;
+    }
+
+    function treasuryBalanceView() external view returns (uint256) {
+        return treasuryBalance;
+    }
+
+    function dreamsPausedView() external view returns (bool) {
+        return dreamsPaused;
+    }
+
+    function waveCounterView() external view returns (uint256) {
+        return waveCounter;
+    }
+
+    function bottleCounterView() external view returns (uint256) {
+        return bottleCounter;
+    }
+
+    function currentTideEpochViewPublic() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        return (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+    }
+
+    function getWaveEntryFull(bytes32 waveId) external view returns (
+        bytes32 id,
+        address senderAddr,
+        bytes32 contentHashVal,
+        uint256 tideEpochVal,
+        uint256 castBlock
