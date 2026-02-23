@@ -603,3 +603,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
             blockNums[i] = t.blockNum;
             waveCounts[i] = t.waveCount;
             sealedAtBlocks[i] = t.sealedAtBlock;
+        }
+        return (blockNums, waveCounts, sealedAtBlocks);
+    }
+
+    function getWaveIdsForSenderPaginated(address account, uint256 offset, uint256 limit) external view returns (bytes32[] memory) {
+        bytes32[] storage ids = _wavesBySender[account];
+        if (offset >= ids.length) return new bytes32[](0);
+        uint256 end = offset + limit;
+        if (end > ids.length) end = ids.length;
+        uint256 n = end - offset;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = ids[offset + i];
+        return out;
+    }
+
+    function getBottleIdsForSenderPaginated(address account, uint256 offset, uint256 limit) external view returns (bytes32[] memory) {
+        bytes32[] storage ids = _bottlesBySender[account];
+        if (offset >= ids.length) return new bytes32[](0);
+        uint256 end = offset + limit;
+        if (end > ids.length) end = ids.length;
+        uint256 n = end - offset;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = ids[offset + i];
+        return out;
+    }
+
+    function latestWaveId() external view returns (bytes32) {
+        if (_waveIdList.length == 0) return bytes32(0);
+        return _waveIdList[_waveIdList.length - 1];
+    }
+
+    function latestBottleId() external view returns (bytes32) {
+        if (_bottleIdList.length == 0) return bytes32(0);
+        return _bottleIdList[_bottleIdList.length - 1];
+    }
+
+    function waveIdAtIndex(uint256 index) external view returns (bytes32) {
+        if (index >= _waveIdList.length) return bytes32(0);
+        return _waveIdList[index];
+    }
+
+    function bottleIdAtIndex(uint256 index) external view returns (bytes32) {
+        if (index >= _bottleIdList.length) return bytes32(0);
+        return _bottleIdList[index];
+    }
+
+    function oceanTreasuryAddress() external view returns (address) {
+        return oceanTreasury;
+    }
+
+    function lighthouseKeeperAddress() external view returns (address) {
+        return lighthouseKeeper;
+    }
+
+    function genesisBlockNumber() external view returns (uint256) {
