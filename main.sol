@@ -1263,3 +1263,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     }
 
     function genesisBlockImmutable() external view returns (uint256) {
+        return genesisBlock;
+    }
+
+    function oceanSaltImmutable() external view returns (bytes32) {
+        return oceanSalt;
+    }
+
+    function OCEAN_SEED_CONSTANT() external pure returns (uint256) {
+        return OCEAN_SEED;
+    }
+
+    function TIDE_BLOCKS_CONSTANT() external pure returns (uint256) {
+        return TIDE_BLOCKS;
+    }
+
+    function WAVES_PER_TIDE_CAP_CONSTANT() external pure returns (uint256) {
+        return WAVES_PER_TIDE_CAP;
+    }
+
+    function WHISPERS_PER_SHORE_CAP_CONSTANT() external pure returns (uint256) {
+        return WHISPERS_PER_SHORE_CAP;
+    }
+
+    function BOTTLE_FEE_WEI_CONSTANT() external pure returns (uint256) {
+        return BOTTLE_FEE_WEI;
+    }
+
+    function MAX_BOTTLES_TOTAL_CONSTANT() external pure returns (uint256) {
+        return MAX_BOTTLES_TOTAL;
+    }
+
+    function MAX_BATCH_WAVES_CONSTANT() external pure returns (uint256) {
+        return MAX_BATCH_WAVES;
+    }
+
+    function getWaveStruct(bytes32 waveId) external view returns (WaveEntry memory) {
+        return waveById[waveId];
+    }
+
+    function getBottleStruct(bytes32 bottleId) external view returns (BottleEntry memory) {
+        return bottleById[bottleId];
+    }
+
+    function getTideStruct(uint256 epoch) external view returns (TideSnapshot memory) {
+        return tideSnapshots[epoch];
+    }
+
+    function getShoreWhisperStruct(bytes32 shoreId, uint256 index) external view returns (ShoreWhisperEntry memory) {
+        return whispersOnShore[shoreId][index];
+    }
+
+    function waveIdUsed(bytes32 waveId) external view returns (bool) {
+        return _waveIdUsed[waveId];
+    }
+
