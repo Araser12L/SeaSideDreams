@@ -933,3 +933,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     function treasuryAddr() external view returns (address) {
         return oceanTreasury;
     }
+
+    function keeperAddr() external view returns (address) {
+        return lighthouseKeeper;
+    }
+
+    function genesisBlockNum() external view returns (uint256) {
+        return genesisBlock;
+    }
+
+    function saltBytes() external view returns (bytes32) {
+        return oceanSalt;
+    }
+
+    function statsTotalWaves() external view returns (uint256) {
+        return totalWavesCast;
+    }
+
+    function statsTotalBottles() external view returns (uint256) {
+        return totalBottlesCast;
+    }
+
+    function statsTreasuryWei() external view returns (uint256) {
+        return treasuryBalance;
+    }
+
+    function statsPaused() external view returns (bool) {
+        return dreamsPaused;
+    }
+
+    function statsCurrentTide() external view returns (uint256) {
+        return currentTideEpoch;
+    }
+
+    function statsWaveCounter() external view returns (uint256) {
+        return waveCounter;
+    }
+
+    function statsBottleCounter() external view returns (uint256) {
+        return bottleCounter;
+    }
+
+    function listWaveIds(uint256 maxReturn) external view returns (bytes32[] memory) {
+        uint256 len = _waveIdList.length;
+        if (len == 0) return new bytes32[](0);
+        uint256 n = maxReturn > len ? len : maxReturn;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _waveIdList[len - 1 - i];
+        return out;
+    }
+
+    function listBottleIds(uint256 maxReturn) external view returns (bytes32[] memory) {
+        uint256 len = _bottleIdList.length;
+        if (len == 0) return new bytes32[](0);
+        uint256 n = maxReturn > len ? len : maxReturn;
+        bytes32[] memory out = new bytes32[](n);
