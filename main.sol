@@ -1208,3 +1208,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
 
     function blockRangeForEpoch(uint256 epoch) external view returns (uint256 startBlock, uint256 endBlock) {
         startBlock = genesisBlock + (epoch - 1) * TIDE_BLOCKS;
+        endBlock = genesisBlock + epoch * TIDE_BLOCKS - 1;
+        return (startBlock, endBlock);
+    }
+
+    function isInEpoch(uint256 blockNumber, uint256 epoch) external view returns (bool) {
+        if (blockNumber <= genesisBlock) return epoch == 1;
+        uint256 e = ((blockNumber - genesisBlock) / TIDE_BLOCKS) + 1;
+        return e == epoch;
+    }
+
+    function getWaveIdsInEpochRange(uint256 fromEpoch, uint256 toEpoch) external view returns (bytes32[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < _waveIdList.length; i++) {
+            uint256 te = waveById[_waveIdList[i]].tideEpoch;
+            if (te >= fromEpoch && te <= toEpoch) count++;
+        }
+        bytes32[] memory out = new bytes32[](count);
+        uint256 j = 0;
+        for (uint256 i = 0; i < _waveIdList.length; i++) {
+            uint256 te = waveById[_waveIdList[i]].tideEpoch;
+            if (te >= fromEpoch && te <= toEpoch) {
+                out[j] = _waveIdList[i];
+                j++;
+            }
+        }
+        return out;
+    }
+
+    function getLastNWaveIds(uint256 n) external view returns (bytes32[] memory) {
+        uint256 len = _waveIdList.length;
+        if (len == 0) return new bytes32[](0);
+        if (n > len) n = len;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _waveIdList[len - 1 - i];
+        return out;
+    }
+
+    function getLastNBottleIds(uint256 n) external view returns (bytes32[] memory) {
+        uint256 len = _bottleIdList.length;
+        if (len == 0) return new bytes32[](0);
+        if (n > len) n = len;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _bottleIdList[len - 1 - i];
+        return out;
+    }
+
+    function oceanTreasuryImmutable() external view returns (address) {
+        return oceanTreasury;
+    }
+
+    function lighthouseKeeperImmutable() external view returns (address) {
+        return lighthouseKeeper;
+    }
+
+    function genesisBlockImmutable() external view returns (uint256) {
