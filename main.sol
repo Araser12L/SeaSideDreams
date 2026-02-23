@@ -1153,3 +1153,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         return (TIDE_BLOCKS, WAVES_PER_TIDE_CAP, WHISPERS_PER_SHORE_CAP, BOTTLE_FEE_WEI, MAX_BOTTLES_TOTAL, MAX_BATCH_WAVES);
     }
 
+    function waveIdList() external view returns (bytes32[] memory) {
+        return _waveIdList;
+    }
+
+    function bottleIdList() external view returns (bytes32[] memory) {
+        return _bottleIdList;
+    }
+
+    function wavesBySender(address account) external view returns (bytes32[] memory) {
+        return _wavesBySender[account];
+    }
+
+    function bottlesBySender(address account) external view returns (bytes32[] memory) {
+        return _bottlesBySender[account];
+    }
+
+    function tideSnapshotBlock(uint256 epoch) external view returns (uint256) {
+        return tideSnapshots[epoch].blockNum;
+    }
+
+    function tideSnapshotWaveCount(uint256 epoch) external view returns (uint256) {
+        return tideSnapshots[epoch].waveCount;
+    }
+
+    function tideSnapshotSealedBlock(uint256 epoch) external view returns (uint256) {
+        return tideSnapshots[epoch].sealedAtBlock;
+    }
+
+    function computeWaveId(bytes32 senderHash, uint256 nonce) external pure returns (bytes32) {
+        return keccak256(abi.encodePacked("SeaSideDreams_Wave_", senderHash, nonce));
+    }
+
+    function computeBottleId(bytes32 senderHash, uint256 nonce) external pure returns (bytes32) {
+        return keccak256(abi.encodePacked("SeaSideDreams_Bottle_", senderHash, nonce));
+    }
+
+    function computeShoreId(string calldata shoreName) external pure returns (bytes32) {
+        return keccak256(abi.encodePacked("SeaSideDreams_Shore_", shoreName));
+    }
+
+    function contentHashFromBytes(bytes calldata data) external pure returns (bytes32) {
+        return keccak256(data);
+    }
+
+    function messageHashFromBytes(bytes calldata data) external pure returns (bytes32) {
+        return keccak256(data);
+    }
+
+    function epochFromBlock(uint256 blockNumber) external view returns (uint256) {
+        if (blockNumber <= genesisBlock) return 1;
+        return ((blockNumber - genesisBlock) / TIDE_BLOCKS) + 1;
+    }
+
+    function blockRangeForEpoch(uint256 epoch) external view returns (uint256 startBlock, uint256 endBlock) {
+        startBlock = genesisBlock + (epoch - 1) * TIDE_BLOCKS;
