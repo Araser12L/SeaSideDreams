@@ -1318,3 +1318,55 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         return _waveIdUsed[waveId];
     }
 
+    function bottleIdUsed(bytes32 bottleId) external view returns (bool) {
+        return _bottleIdUsed[bottleId];
+    }
+
+    function numWavesInEpoch(uint256 epoch) external view returns (uint256) {
+        return waveCountInTide[epoch];
+    }
+
+    function numWhispersOnShore(bytes32 shoreId) external view returns (uint256) {
+        return whisperCountByShore[shoreId];
+    }
+
+    function waveIdToContentHash(bytes32 waveId) external view returns (bytes32) {
+        return waveById[waveId].contentHash;
+    }
+
+    function bottleIdToMessageHash(bytes32 bottleId) external view returns (bytes32) {
+        return bottleById[bottleId].messageHash;
+    }
+
+    function waveIdToTideEpoch(bytes32 waveId) external view returns (uint256) {
+        return waveById[waveId].tideEpoch;
+    }
+
+    function bottleIdToFee(bytes32 bottleId) external view returns (uint256) {
+        return bottleById[bottleId].feeWei;
+    }
+
+    function waveSenderOf(bytes32 waveId) external view returns (address) {
+        return waveById[waveId].sender;
+    }
+
+    function bottleSenderOf(bytes32 bottleId) external view returns (address) {
+        return bottleById[bottleId].sender;
+    }
+
+    function waveCastBlock(bytes32 waveId) external view returns (uint256) {
+        return waveById[waveId].castAtBlock;
+    }
+
+    function bottleCastBlock(bytes32 bottleId) external view returns (uint256) {
+        return bottleById[bottleId].castAtBlock;
+    }
+
+    function totalWavesCastCount() external view returns (uint256) { return totalWavesCast; }
+
+    receive() external payable {
+        treasuryBalance += msg.value;
+        emit OceanTreasuryTopped(msg.value, msg.sender, treasuryBalance);
+    }
+}
+
