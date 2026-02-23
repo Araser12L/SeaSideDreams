@@ -823,3 +823,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
     function waveCountForSender(address account) external view returns (uint256) {
         return _wavesBySender[account].length;
     }
+
+    function bottleCountForSender(address account) external view returns (uint256) {
+        return _bottlesBySender[account].length;
+    }
+
+    function totalWaveCount() external view returns (uint256) {
+        return _waveIdList.length;
+    }
+
+    function totalBottleCount() external view returns (uint256) {
+        return _bottleIdList.length;
+    }
+
+    function getWaveSenderBatch(bytes32[] calldata waveIds) external view returns (address[] memory) {
+        address[] memory out = new address[](waveIds.length);
+        for (uint256 i = 0; i < waveIds.length; i++) out[i] = waveById[waveIds[i]].sender;
+        return out;
+    }
+
+    function getWaveContentHashBatch(bytes32[] calldata waveIds) external view returns (bytes32[] memory) {
+        bytes32[] memory out = new bytes32[](waveIds.length);
+        for (uint256 i = 0; i < waveIds.length; i++) out[i] = waveById[waveIds[i]].contentHash;
+        return out;
+    }
+
+    function getWaveTideEpochBatch(bytes32[] calldata waveIds) external view returns (uint256[] memory) {
+        uint256[] memory out = new uint256[](waveIds.length);
+        for (uint256 i = 0; i < waveIds.length; i++) out[i] = waveById[waveIds[i]].tideEpoch;
+        return out;
+    }
+
+    function getWaveCastBlockBatch(bytes32[] calldata waveIds) external view returns (uint256[] memory) {
+        uint256[] memory out = new uint256[](waveIds.length);
+        for (uint256 i = 0; i < waveIds.length; i++) out[i] = waveById[waveIds[i]].castAtBlock;
+        return out;
+    }
+
+    function getBottleSenderBatch(bytes32[] calldata bottleIds) external view returns (address[] memory) {
+        address[] memory out = new address[](bottleIds.length);
+        for (uint256 i = 0; i < bottleIds.length; i++) out[i] = bottleById[bottleIds[i]].sender;
+        return out;
+    }
+
+    function getBottleMessageHashBatch(bytes32[] calldata bottleIds) external view returns (bytes32[] memory) {
+        bytes32[] memory out = new bytes32[](bottleIds.length);
+        for (uint256 i = 0; i < bottleIds.length; i++) out[i] = bottleById[bottleIds[i]].messageHash;
+        return out;
+    }
+
+    function getBottleFeeBatch(bytes32[] calldata bottleIds) external view returns (uint256[] memory) {
+        uint256[] memory out = new uint256[](bottleIds.length);
+        for (uint256 i = 0; i < bottleIds.length; i++) out[i] = bottleById[bottleIds[i]].feeWei;
+        return out;
+    }
+
