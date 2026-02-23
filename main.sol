@@ -768,3 +768,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         return WAVES_PER_TIDE_CAP;
     }
 
+    function maxWhispersPerShore() external pure returns (uint256) {
+        return WHISPERS_PER_SHORE_CAP;
+    }
+
+    function maxBottles() external pure returns (uint256) {
+        return MAX_BOTTLES_TOTAL;
+    }
+
+    function maxBatchWavesSize() external pure returns (uint256) {
+        return MAX_BATCH_WAVES;
+    }
+
+    function allWaveIdsPaginated(uint256 pageSize, uint256 page) external view returns (bytes32[] memory) {
+        uint256 len = _waveIdList.length;
+        uint256 start = page * pageSize;
+        if (start >= len) return new bytes32[](0);
+        uint256 end = start + pageSize;
+        if (end > len) end = len;
+        uint256 n = end - start;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _waveIdList[start + i];
+        return out;
+    }
+
+    function allBottleIdsPaginated(uint256 pageSize, uint256 page) external view returns (bytes32[] memory) {
+        uint256 len = _bottleIdList.length;
+        uint256 start = page * pageSize;
+        if (start >= len) return new bytes32[](0);
+        uint256 end = start + pageSize;
+        if (end > len) end = len;
+        uint256 n = end - start;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _bottleIdList[start + i];
+        return out;
+    }
+
+    function waveIdsForTideEpoch(uint256 tideEpoch) external view returns (bytes32[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < _waveIdList.length; i++) {
+            if (waveById[_waveIdList[i]].tideEpoch == tideEpoch) count++;
+        }
+        bytes32[] memory out = new bytes32[](count);
+        uint256 j = 0;
+        for (uint256 i = 0; i < _waveIdList.length; i++) {
+            if (waveById[_waveIdList[i]].tideEpoch == tideEpoch) {
+                out[j] = _waveIdList[i];
+                j++;
+            }
+        }
+        return out;
+    }
+
+    function waveCountForSender(address account) external view returns (uint256) {
+        return _wavesBySender[account].length;
+    }
