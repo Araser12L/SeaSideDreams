@@ -1098,3 +1098,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
 
     function blocksToNextTide() external view returns (uint256) {
         uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 inCurrent = blocksSinceGenesis % TIDE_BLOCKS;
+        return inCurrent == 0 ? TIDE_BLOCKS : (TIDE_BLOCKS - inCurrent);
+    }
+
+    function waveSlotsRemaining() external view returns (uint256) {
+        uint256 blocksSinceGenesis = block.number - genesisBlock;
+        uint256 epoch = (blocksSinceGenesis / TIDE_BLOCKS) + 1;
+        uint256 used = waveCountInTide[epoch];
+        return used >= WAVES_PER_TIDE_CAP ? 0 : (WAVES_PER_TIDE_CAP - used);
+    }
+
+    function bottleSlotsRemaining() external view returns (uint256) {
+        return bottleCounter >= MAX_BOTTLES_TOTAL ? 0 : (MAX_BOTTLES_TOTAL - bottleCounter);
+    }
+
+    function whisperSlotsRemaining(bytes32 shoreId) external view returns (uint256) {
+        uint256 used = whisperCountByShore[shoreId];
+        return used >= WHISPERS_PER_SHORE_CAP ? 0 : (WHISPERS_PER_SHORE_CAP - used);
+    }
+
+    function getFullConfig() external view returns (
+        address treasury,
+        address keeper,
+        uint256 genesis,
+        bytes32 salt,
+        uint256 wavesTotal,
+        uint256 bottlesTotal,
+        uint256 treasuryWei,
+        bool paused,
+        uint256 epoch
+    ) {
+        return (
+            oceanTreasury,
+            lighthouseKeeper,
+            genesisBlock,
+            oceanSalt,
+            totalWavesCast,
+            totalBottlesCast,
+            treasuryBalance,
+            dreamsPaused,
+            currentTideEpoch
+        );
+    }
+
+    function getFullConstants() external pure returns (
+        uint256 tideBlk,
+        uint256 waveCap,
+        uint256 whisperCap,
+        uint256 bottleFee,
+        uint256 maxBottle,
+        uint256 maxBatch
+    ) {
+        return (TIDE_BLOCKS, WAVES_PER_TIDE_CAP, WHISPERS_PER_SHORE_CAP, BOTTLE_FEE_WEI, MAX_BOTTLES_TOTAL, MAX_BATCH_WAVES);
+    }
+
