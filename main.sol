@@ -988,3 +988,58 @@ contract SeaSideDreams is ReentrancyGuard, Ownable {
         if (len == 0) return new bytes32[](0);
         uint256 n = maxReturn > len ? len : maxReturn;
         bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = _bottleIdList[len - 1 - i];
+        return out;
+    }
+
+    function getShoreWhisperSenders(bytes32 shoreId, uint256 fromIndex, uint256 toIndex) external view returns (address[] memory) {
+        uint256 total = whisperCountByShore[shoreId];
+        if (fromIndex >= total || fromIndex >= toIndex) return new address[](0);
+        if (toIndex > total) toIndex = total;
+        uint256 n = toIndex - fromIndex;
+        address[] memory out = new address[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = whispersOnShore[shoreId][fromIndex + i].sender;
+        return out;
+    }
+
+    function getShoreWhisperHashes(bytes32 shoreId, uint256 fromIndex, uint256 toIndex) external view returns (bytes32[] memory) {
+        uint256 total = whisperCountByShore[shoreId];
+        if (fromIndex >= total || fromIndex >= toIndex) return new bytes32[](0);
+        if (toIndex > total) toIndex = total;
+        uint256 n = toIndex - fromIndex;
+        bytes32[] memory out = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = whispersOnShore[shoreId][fromIndex + i].whisperHash;
+        return out;
+    }
+
+    function getShoreWhisperBlocks(bytes32 shoreId, uint256 fromIndex, uint256 toIndex) external view returns (uint256[] memory) {
+        uint256 total = whisperCountByShore[shoreId];
+        if (fromIndex >= total || fromIndex >= toIndex) return new uint256[](0);
+        if (toIndex > total) toIndex = total;
+        uint256 n = toIndex - fromIndex;
+        uint256[] memory out = new uint256[](n);
+        for (uint256 i = 0; i < n; i++) out[i] = whispersOnShore[shoreId][fromIndex + i].atBlock;
+        return out;
+    }
+
+    function waveExists(bytes32 waveId) external view returns (bool) {
+        return _waveIdUsed[waveId];
+    }
+
+    function bottleExists(bytes32 bottleId) external view returns (bool) {
+        return _bottleIdUsed[bottleId];
+    }
+
+    function oceanSeedConstant() external pure returns (uint256) {
+        return OCEAN_SEED;
+    }
+
+    function treasuryBalanceWei() external view returns (uint256) {
+        return treasuryBalance;
+    }
+
+    function pausedState() external view returns (bool) {
+        return dreamsPaused;
+    }
+
+    function currentEpoch() external view returns (uint256) {
